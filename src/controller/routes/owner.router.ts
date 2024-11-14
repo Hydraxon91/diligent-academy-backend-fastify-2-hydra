@@ -5,12 +5,9 @@ import { OwnerService } from "../../service/owner.service";
 import { PetService } from "../../service/pet.service";
 import { getOwnerByIdSchema, getOwnersSchema, postOwnerSchema } from "../owner.schemas";
 
-type PluginOptions = {
-    ownerService: OwnerService,
-    petService: PetService
-}
 
-export const createOwnerRoutes: FastifyPluginAsync<PluginOptions> = async (app, {ownerService, petService}) => {
+
+export const createOwnerRoutes: FastifyPluginAsync = async (app) => {
     const appWithTypeProvider = app.withTypeProvider<JsonSchemaToTsProvider>()
     // POST '/api/owners/:ownerId/pets/:petId'
     appWithTypeProvider.put(
@@ -18,7 +15,7 @@ export const createOwnerRoutes: FastifyPluginAsync<PluginOptions> = async (app, 
         { schema: putPetsToOwnersSchema },
         async (request) => {
           const { petId, ownerId } = request.params;
-          const updated = await petService.adopt(petId, ownerId);
+          const updated = await app.petService.adopt(petId, ownerId);
           return updated;
         }
       )
@@ -28,7 +25,7 @@ export const createOwnerRoutes: FastifyPluginAsync<PluginOptions> = async (app, 
         '/api/owners',
         { schema: getOwnersSchema },
         async () => {
-          return await ownerService.getAll();
+          return await app.ownerService.getAll();
         }
       )
 
@@ -38,7 +35,7 @@ export const createOwnerRoutes: FastifyPluginAsync<PluginOptions> = async (app, 
         { schema: getOwnerByIdSchema },
         async (request) => {
           const { id } = request.params;
-          return await ownerService.getById(id);
+          return await app.ownerService.getById(id);
         }
       )
 
@@ -49,7 +46,7 @@ export const createOwnerRoutes: FastifyPluginAsync<PluginOptions> = async (app, 
         { schema: postOwnerSchema },
         async (request, reply) => {
           const ownerProps = request.body;
-          const created = await ownerService.create(ownerProps);
+          const created = await app.ownerService.create(ownerProps);
           reply.status(201);
           return created;
         }

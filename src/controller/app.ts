@@ -13,6 +13,13 @@ type Dependencies = {
   dbClient: DbClient;
 }
 
+declare module 'fastify'{
+  interface FastifyInstance{
+    petService: PetService
+    ownerService: OwnerService
+  }
+}
+
 export default function createApp(options = {}, dependencies: Dependencies) {
   const { dbClient } = dependencies;
 
@@ -22,8 +29,11 @@ export default function createApp(options = {}, dependencies: Dependencies) {
   const ownerService = new OwnerService(ownerRepository);
 
   const app = fastify(options);
+
+  app.decorate('petService', petService)
+  app.decorate('ownerService', ownerService)
   
-  app.register(createPetRoute, {petService})
-  app.register(createOwnerRoutes, {ownerService, petService})
+  app.register(createPetRoute, { prefix: '/api/pets' })
+  app.register(createOwnerRoutes, { prefix: '/api/owners'})
   return app;
 }
