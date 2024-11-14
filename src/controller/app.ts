@@ -2,12 +2,12 @@ import fastify from 'fastify';
 import { PetService } from '../service/pet.service';
 import { PetRepository } from '../repository/pet.repository';
 import { DbClient } from '../db';
-import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts'
 
 import { OwnerRepository } from '../repository/owner.repository';
 import { OwnerService } from '../service/owner.service';
 import { createPetRoute } from './routes/pet.router';
 import { createOwnerRoutes } from './routes/owner.router';
+import createMessengerPlugin from '../service/messenger.plugin';
 
 type Dependencies = {
   dbClient: DbClient;
@@ -35,5 +35,6 @@ export default function createApp(options = {}, dependencies: Dependencies) {
   
   app.register(createPetRoute, { prefix: '/api/pets' })
   app.register(createOwnerRoutes, { prefix: '/api/owners'})
+  app.register(createMessengerPlugin, { message: 'Hello, World!' }); //hook it on a plugin
   return app;
 }
