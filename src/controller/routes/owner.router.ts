@@ -1,17 +1,14 @@
 import { FastifyPluginAsync } from "fastify";
 import { putPetsToOwnersSchema } from "../pet.schemas";
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
-import { OwnerService } from "../../service/owner.service";
-import { PetService } from "../../service/pet.service";
 import { getOwnerByIdSchema, getOwnersSchema, postOwnerSchema } from "../owner.schemas";
-
 
 
 export const createOwnerRoutes: FastifyPluginAsync = async (app) => {
     const appWithTypeProvider = app.withTypeProvider<JsonSchemaToTsProvider>()
     // POST '/api/owners/:ownerId/pets/:petId'
     appWithTypeProvider.put(
-        '/api/owners/:ownerId/pets/:petId',
+        '/:ownerId/pets/:petId',
         { schema: putPetsToOwnersSchema },
         async (request) => {
           const { petId, ownerId } = request.params;
@@ -22,7 +19,7 @@ export const createOwnerRoutes: FastifyPluginAsync = async (app) => {
 
     // GET '/api/owners'
     appWithTypeProvider.get(
-        '/api/owners',
+        '/',
         { schema: getOwnersSchema },
         async () => {
           return await app.ownerService.getAll();
@@ -31,7 +28,7 @@ export const createOwnerRoutes: FastifyPluginAsync = async (app) => {
 
     // GET '/api/owners/id'
     appWithTypeProvider.get(
-        '/api/owners/:id',
+        '/:id',
         { schema: getOwnerByIdSchema },
         async (request) => {
           const { id } = request.params;
@@ -42,7 +39,7 @@ export const createOwnerRoutes: FastifyPluginAsync = async (app) => {
     // post /api/owners
 
     appWithTypeProvider.post(
-        '/api/owners',
+        '/',
         { schema: postOwnerSchema },
         async (request, reply) => {
           const ownerProps = request.body;

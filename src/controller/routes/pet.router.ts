@@ -1,6 +1,5 @@
 import { FastifyPluginAsync } from "fastify";
 import { getPetByIdSchema, getPetsSchema, postPetsSchema } from "../pet.schemas";
-import { PetService } from "../../service/pet.service";
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 
 
@@ -8,7 +7,7 @@ export const createPetRoute: FastifyPluginAsync = async (app) => {
     const appWithTypeProvider = app.withTypeProvider<JsonSchemaToTsProvider>()
     // GET /api/pets 
     appWithTypeProvider.get(
-        '/api/pets',
+        '/',
         { schema: getPetsSchema },
         async () => {
           const pets = await app.petService.getAll();
@@ -17,7 +16,7 @@ export const createPetRoute: FastifyPluginAsync = async (app) => {
 
     // GET /api/pets/id
     appWithTypeProvider.get(
-        '/api/pets/:id',
+        '/:id',
         { schema: getPetByIdSchema },
         async (request) => {
           const { id } = request.params;
@@ -27,7 +26,7 @@ export const createPetRoute: FastifyPluginAsync = async (app) => {
 
     // post /api/pets
     appWithTypeProvider.post(
-        '/api/pets',
+        '/',
         { schema: postPetsSchema },
         async (request, reply) => {
           const { body: petToCreate } = request;
