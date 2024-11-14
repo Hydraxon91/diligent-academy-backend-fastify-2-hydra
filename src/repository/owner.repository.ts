@@ -24,13 +24,13 @@ export class OwnerRepository {
   }
 
   async read({ limit, offset }: { limit?: number, offset?: number } = {}) {
-    const sql = 'SELECT id, name, age FROM pet_owner LIMIT $1 OFFSET $2;'
+    const sql = 'SELECT id, name, age FROM owners LIMIT $1 OFFSET $2;'
     const rows = await this.client.query(sql, [limit, offset]) as Array<OwnerRecord>;
     return rows.map(this.toEntity)
   }
 
   async readById(id: number) {
-    const sql = 'SELECT id, name, age FROM pet_owner WHERE id=$1;'
+    const sql = 'SELECT id, name, age FROM owners WHERE id=$1;'
     const rows = await this.client.query(sql, [id]) as Array<OwnerRecord>;
     return rows.length === 1 ? this.toEntity(rows[0]) : null;
   }
@@ -38,7 +38,7 @@ export class OwnerRepository {
   async create(owner: OwnerToCreate) {
     const {name, age} = owner;
     const sql = `
-      INSERT INTO pet_owner (name, age) VALUES 
+      INSERT INTO owners (name, age) VALUES 
         ($1, $2) 
       RETURNING *
     `
