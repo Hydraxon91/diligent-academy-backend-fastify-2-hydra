@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import { PetService } from '../service/pet.service';
+import { PetNotFoundError, PetService, PetTakenError } from '../service/pet.service';
 import { PetRepository } from '../repository/pet.repository';
 import { DbClient } from '../db';
 
@@ -8,6 +8,7 @@ import { OwnerService } from '../service/owner.service';
 import { createPetRoute } from './routes/pet.router';
 import { createOwnerRoutes } from './routes/owner.router';
 import createMessengerPlugin from '../service/messenger.plugin';
+import { httpErrors } from '@fastify/sensible';
 
 type Dependencies = {
   dbClient: DbClient;
@@ -32,6 +33,15 @@ export default function createApp(options = {}, dependencies: Dependencies) {
 
   app.decorate('petService', petService)
   app.decorate('ownerService', ownerService)
+  app.setErrorHandler((error)=>{
+    if(error instanceof PetNotFoundError){
+      return httpErrors.notFound('Pet not found')
+    } else if(error instanceof PetTakenError){
+      return httpErrors.badRequest('Pet is already taken')
+    }else {
+      return httpErrors.internalServerError('Something went wrong')
+    } 
+  })
   
   app.register(createPetRoute, { prefix: '/api/pets' })
   app.register(createOwnerRoutes, { prefix: '/api/owners'})
