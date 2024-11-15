@@ -18,10 +18,19 @@ export const createPetRoute: FastifyPluginAsync = async (app) => {
     appWithTypeProvider.get(
         '/:id',
         { schema: getPetByIdSchema },
-        async (request) => {
+        async (request, reply) => {
           const { id } = request.params;
-          const pets = await app.petService.getById(id);
-          return pets;
+          const result = await app.petService.getById(id);
+          if (result.isSuccess) {
+            return result.result;
+          }else {
+            const mapper = {
+              notFound: 404,
+              alreadyTaken: 400
+            }
+            reply.status(mapper[result.errorCode])
+            return {error: result.reason};
+          }
     })
 
     // post /api/pets
